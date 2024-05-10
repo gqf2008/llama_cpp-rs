@@ -40,6 +40,8 @@ pub struct LlamaParams {
 
     /// Force system to keep model in RAM
     pub use_mlock: bool,
+
+    pub check_tensors: bool,
 }
 
 /// A policy to split the model across multiple GPUs
@@ -89,6 +91,7 @@ impl Default for LlamaParams {
         let c_params = unsafe { llama_model_default_params() };
 
         Self {
+            check_tensors: c_params.check_tensors,
             n_gpu_layers: c_params.n_gpu_layers as u32,
             split_mode: c_params.split_mode.into(),
             main_gpu: c_params.main_gpu as u32,
@@ -102,6 +105,7 @@ impl Default for LlamaParams {
 impl From<LlamaParams> for llama_model_params {
     fn from(value: LlamaParams) -> Self {
         llama_model_params {
+            check_tensors: value.check_tensors,
             n_gpu_layers: value.n_gpu_layers as i32,
             split_mode: value.split_mode.into(),
             main_gpu: value.main_gpu as i32,

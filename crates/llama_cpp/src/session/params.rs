@@ -283,6 +283,8 @@ pub struct SessionParams {
 
     /// defragment the KV cache if holes/size > thold, < 0 disabled (default)
     pub defrag_threshold: f32,
+
+    pub flash_attn: bool,
 }
 
 impl Default for SessionParams {
@@ -295,6 +297,7 @@ impl Default for SessionParams {
         let threads = num_cpus::get_physical() as u32 - 1;
 
         Self {
+            flash_attn: false,
             seed: c_defaults.seed,
             n_ctx: c_defaults.n_ctx,
             n_batch: c_defaults.n_batch,
@@ -323,6 +326,7 @@ impl Default for SessionParams {
 impl From<SessionParams> for llama_context_params {
     fn from(value: SessionParams) -> Self {
         Self {
+            flash_attn: value.flash_attn,
             seed: value.seed,
             n_ctx: value.n_ctx,
             n_batch: value.n_batch,
@@ -356,6 +360,7 @@ impl From<SessionParams> for llama_context_params {
 impl From<llama_context_params> for SessionParams {
     fn from(value: llama_context_params) -> Self {
         Self {
+            flash_attn: value.flash_attn,
             seed: value.seed,
             n_ctx: value.n_ctx,
             n_batch: value.n_batch,
