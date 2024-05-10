@@ -40,7 +40,7 @@ pub struct LlamaParams {
 
     /// Force system to keep model in RAM
     pub use_mlock: bool,
-    /// Check tensors
+    /// validate model tensor data
     pub check_tensors: bool,
 }
 

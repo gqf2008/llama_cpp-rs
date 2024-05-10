@@ -283,7 +283,7 @@ pub struct SessionParams {
 
     /// defragment the KV cache if holes/size > thold, < 0 disabled (default)
     pub defrag_threshold: f32,
-    ///flash attn
+    ///whether to use flash attention
     pub flash_attn: bool,
 }
 
