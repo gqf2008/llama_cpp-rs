@@ -283,7 +283,7 @@ pub struct SessionParams {
 
     /// defragment the KV cache if holes/size > thold, < 0 disabled (default)
     pub defrag_threshold: f32,
-
+    ///flash attn
     pub flash_attn: bool,
 }
 
@@ -297,7 +297,7 @@ impl Default for SessionParams {
         let threads = num_cpus::get_physical() as u32 - 1;
 
         Self {
-            flash_attn: false,
+            flash_attn: c_defaults.flash_attn,
             seed: c_defaults.seed,
             n_ctx: c_defaults.n_ctx,
             n_batch: c_defaults.n_batch,
