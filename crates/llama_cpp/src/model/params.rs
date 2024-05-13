@@ -147,7 +147,7 @@ impl EmbeddingsParams {
 
 impl Default for EmbeddingsParams {
     fn default() -> Self {
-        let threads = num_cpus::get_physical() as u32 - 1;
+        let threads = num_cpus::get_physical() as u32;
 
         Self {
             n_threads: threads,

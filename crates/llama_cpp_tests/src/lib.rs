@@ -19,7 +19,7 @@ mod tests {
 
     use llama_cpp::standard_sampler::StandardSampler;
     use llama_cpp::{
-        CompletionHandle, EmbeddingsParams, LlamaModel, LlamaParams, SessionParams, TokensToStrings,
+        CompletionHandle, EmbeddingsParams, LlamaModel, LlamaParams, ContextParams, TokensToStrings,
     };
 
     fn init_tracing() {
@@ -108,7 +108,7 @@ mod tests {
                 .await
                 .expect("Failed to load model");
 
-            let params = SessionParams {
+            let params = ContextParams {
                 n_ctx: 2048,
                 ..Default::default()
             };

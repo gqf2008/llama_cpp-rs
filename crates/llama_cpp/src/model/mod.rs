@@ -26,8 +26,8 @@ pub use params::*;
 
 use crate::batch::Batch;
 use crate::{
-    LlamaContextError, LlamaContextInner, LlamaInternalError, LlamaSession, LlamaSessionInner,
-    ResourceUsage, SessionParams, Token,
+    ContextParams, LlamaContextError, LlamaContextInner, LlamaInternalError, LlamaSession,
+    LlamaSessionInner, ResourceUsage, Token,
 };
 
 mod backend;
@@ -473,7 +473,7 @@ impl LlamaModel {
     /// the model weights and 100MiB for each session.
     pub fn create_session(
         &self,
-        session_params: SessionParams,
+        session_params: ContextParams,
     ) -> Result<LlamaSession, LlamaContextError> {
         let params = llama_context_params::from(session_params.clone());
         let max_batch = params.n_batch;
@@ -508,7 +508,7 @@ impl LlamaModel {
     /// # Parameters
     ///
     /// * `session_params` - the parameters of the session to be created.
-    pub fn estimate_session_size(&self, session_params: &SessionParams) -> ResourceUsage {
+    pub fn estimate_session_size(&self, session_params: &ContextParams) -> ResourceUsage {
         let kv_size = session_params.n_ctx as i64; // TODO exception for mamba arch
 
         // dimension of key embeddings across all k-v heads

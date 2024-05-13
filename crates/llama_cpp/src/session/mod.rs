@@ -77,7 +77,7 @@ pub(crate) struct LlamaSessionInner {
     pub(crate) max_batch: u32,
 
     /// The parameters this session was created with
-    pub(crate) params: SessionParams,
+    pub(crate) params: ContextParams,
 }
 
 /// An error raised while advancing the context in a [`LlamaSession`].
@@ -374,7 +374,7 @@ impl LlamaSession {
     }
 
     /// Returns the parameters this session was created with.
-    pub fn params(&self) -> &SessionParams {
+    pub fn params(&self) -> &ContextParams {
         &self.inner.params
     }
 

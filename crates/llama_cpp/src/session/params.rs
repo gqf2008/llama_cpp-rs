@@ -218,7 +218,7 @@ impl From<ggml_type> for CacheType {
 
 /// Session-specific parameters.
 #[derive(Clone)]
-pub struct SessionParams {
+pub struct ContextParams {
     /// RNG seed, [`u32::MAX`] for random (default)
     pub seed: u32,
 
@@ -287,14 +287,14 @@ pub struct SessionParams {
     pub flash_attn: bool,
 }
 
-impl Default for SessionParams {
+impl Default for ContextParams {
     fn default() -> Self {
         let c_defaults = unsafe {
             // SAFETY: Stack constructor, always safe.
             llama_context_default_params()
         };
 
-        let threads = num_cpus::get_physical() as u32 - 1;
+        let threads = num_cpus::get_physical() as u32;
 
         Self {
             flash_attn: c_defaults.flash_attn,
@@ -323,8 +323,8 @@ impl Default for SessionParams {
     }
 }
 
-impl From<SessionParams> for llama_context_params {
-    fn from(value: SessionParams) -> Self {
+impl From<ContextParams> for llama_context_params {
+    fn from(value: ContextParams) -> Self {
         Self {
             flash_attn: value.flash_attn,
             seed: value.seed,
@@ -357,7 +357,7 @@ impl From<SessionParams> for llama_context_params {
     }
 }
 
-impl From<llama_context_params> for SessionParams {
+impl From<llama_context_params> for ContextParams {
     fn from(value: llama_context_params) -> Self {
         Self {
             flash_attn: value.flash_attn,

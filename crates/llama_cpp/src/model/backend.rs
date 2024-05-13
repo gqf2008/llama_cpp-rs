@@ -20,28 +20,31 @@ static BACKEND: Mutex<Option<(Backend, usize)>> = Mutex::new(None);
 /// dropped respectively.
 ///
 /// [llama.cpp]: https://github.com/ggerganov/llama.cpp/
-struct Backend {}
+struct Backend;
 
 impl Backend {
+    fn init() -> Self {
+        Self::init_with_numa(NumaStrategy::Distribute)
+    }
+
     /// Initialises the [llama.cpp][llama.cpp] backend and sets its logger.
     ///
     /// There should only ever be one instance of this struct at any given time.
     ///
     /// [llama.cpp]: https://github.com/ggerganov/llama.cpp/
-    fn init() -> Self {
+    fn init_with_numa(numa: NumaStrategy) -> Self {
         unsafe {
             // SAFETY: This is only called when no models or sessions exist.
             llama_backend_init();
 
             // TODO look into numa strategies, this should probably be part of the API
-            llama_numa_init(ggml_numa_strategy::GGML_NUMA_STRATEGY_DISTRIBUTE);
+            llama_numa_init(numa.into());
 
             // SAFETY: performs a simple assignment to static variables. Should only execute once
             // before any logs are made.
             llama_log_set(Some(detail::llama_log_callback), ptr::null_mut());
         }
-
-        Self {}
+        Self
     }
 }
 
@@ -92,5 +95,44 @@ impl Drop for BackendRef {
 impl Clone for BackendRef {
     fn clone(&self) -> Self {
         Self::new()
+    }
+}
+
+/// A policy to split the model across multiple GPUs
+#[non_exhaustive]
+pub enum NumaStrategy {
+    Disable,
+    Distribute,
+    Isolate,
+    Numactl,
+    Mirror,
+    Count,
+}
+
+impl From<NumaStrategy> for ggml_numa_strategy {
+    fn from(value: NumaStrategy) -> Self {
+        match value {
+            NumaStrategy::Disable => ggml_numa_strategy::GGML_NUMA_STRATEGY_DISABLED,
+            NumaStrategy::Distribute => ggml_numa_strategy::GGML_NUMA_STRATEGY_DISTRIBUTE,
+            NumaStrategy::Isolate => ggml_numa_strategy::GGML_NUMA_STRATEGY_ISOLATE,
+            NumaStrategy::Numactl => ggml_numa_strategy::GGML_NUMA_STRATEGY_NUMACTL,
+            NumaStrategy::Mirror => ggml_numa_strategy::GGML_NUMA_STRATEGY_MIRROR,
+            NumaStrategy::Count => ggml_numa_strategy::GGML_NUMA_STRATEGY_COUNT,
+        }
+    }
+}
+
+impl From<ggml_numa_strategy> for NumaStrategy {
+    fn from(value: ggml_numa_strategy) -> Self {
+        #![allow(non_upper_case_globals)]
+        match value {
+            ggml_numa_strategy::GGML_NUMA_STRATEGY_DISABLED => NumaStrategy::Disable,
+            ggml_numa_strategy::GGML_NUMA_STRATEGY_DISTRIBUTE => NumaStrategy::Distribute,
+            ggml_numa_strategy::GGML_NUMA_STRATEGY_ISOLATE => NumaStrategy::Isolate,
+            ggml_numa_strategy::GGML_NUMA_STRATEGY_NUMACTL => NumaStrategy::Numactl,
+            ggml_numa_strategy::GGML_NUMA_STRATEGY_MIRROR => NumaStrategy::Mirror,
+            ggml_numa_strategy::GGML_NUMA_STRATEGY_COUNT => NumaStrategy::Count,
+            _ => unimplemented!(),
+        }
     }
 }
